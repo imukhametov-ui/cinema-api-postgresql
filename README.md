@@ -1,114 +1,154 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Cinema Booking API — Homework 2
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+REST API для керування фільмами, кінозалами, сеансами та бронюванням місць.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Проєкт розроблений на **NestJS, TypeScript, PostgreSQL і TypeORM**.
 
-## Description
+## Технології
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- Node.js / NestJS
+- TypeScript
+- PostgreSQL 18
+- TypeORM
+- Docker Compose
+- Swagger / OpenAPI
+- Jest
 
-## Project setup
+## Основні можливості
 
-```bash
-$ npm install
-```
+- CRUD-операції для фільмів.
+- Створення та перегляд кінозалів.
+- Створення та перегляд кіносеансів.
+- Фільтрація сеансів за фільмом і датою.
+- Пагінація та сортування через PostgreSQL.
+- Бронювання місць із використанням транзакцій.
+- Захист від подвійного бронювання (HTTP 409).
+- Звільнення місць після видалення бронювання.
+- Єдиний формат HTTP-помилок.
+- Міграції бази даних і тестові дані (seed).
 
-## Compile and run the project
+## Встановлення
+
+Потрібні Node.js, npm і Docker Desktop.
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+git clone https://github.com/imukhametov-ui/cinema-api-postgresql.git
+cd cinema-api-postgresql
+npm install
 ```
 
-## Run tests
+## Налаштування середовища
+
+Створіть `.env` на основі `.env.example`.
+
+Приклад для локального Docker Compose:
+
+```env
+PORT=3000
+DB_HOST=localhost
+DB_PORT=5433
+DB_USERNAME=cinema_user
+DB_PASSWORD=cinema_password
+DB_DATABASE=cinema_db
+```
+
+Пароль наведено для локального навчального середовища. Не використовуйте його у production.
+
+## Запуск PostgreSQL
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+docker compose up -d
 ```
 
-## Deployment
+PostgreSQL працює на порту `5433` хост-комп'ютера.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## Міграції
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Створення таблиць:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm run migration:run
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Перевірка стану:
 
-## Observability
+```bash
+npm run migration:show
+```
 
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
+Відкат останньої міграції:
 
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
+```bash
+npm run migration:revert
+```
 
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
+**Увага:** відкат початкової міграції видаляє таблиці та їхні дані. Використовуйте його лише в тестовому середовищі.
 
-## Resources
+## Тестові дані
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+npm run seed
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observer](https://observer.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Seed створює демонстраційні фільми, кінозали, сеанси та бронювання. Повторний послідовний запуск не повинен дублювати вже створені записи.
 
-## Support
+## Запуск API
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+npm run start:dev
+```
 
-## Stay in touch
+API: http://localhost:3000
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Swagger: http://localhost:3000/docs
 
-## License
+## Основні маршрути
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+| Метод | Маршрут | Опис |
+|---|---|---|
+| GET | `/films` | Список фільмів |
+| POST | `/films` | Створення фільму |
+| GET | `/halls` | Список залів |
+| POST | `/halls` | Створення залу |
+| GET | `/showings` | Список сеансів |
+| POST | `/showings` | Створення сеансу |
+| GET | `/showings/:id` | Деталі сеансу |
+| GET | `/showings/:id/seats` | Стан місць |
+| POST | `/showings/:id/bookings` | Бронювання місць |
+| GET | `/showings/:id/bookings` | Бронювання сеансу |
+| GET | `/bookings` | Список бронювань |
+| DELETE | `/bookings/:id` | Видалення бронювання |
+
+Повний опис маршрутів і параметрів доступний у Swagger.
+
+### Приклад пагінації та сортування
+
+```http
+GET /showings?page=1&limit=2&sort=asc
+```
+
+Відповідь містить поля `items`, `total`, `page`, `limit`.
+
+## Обробка помилок
+
+Глобальний ExceptionFilter повертає помилки в єдиному форматі:
+
+```json
+{
+  "statusCode": 404,
+  "message": "Showing not found",
+  "timestamp": "2026-11-15T21:03:17.739Z",
+  "path": "/showings/invalid-id"
+}
+```
+
+## Перевірка проєкту
+
+```bash
+npm run build
+npm test -- --runInBand
+```
+
+## Репозиторій
+
+https://github.com/imukhametov-ui/cinema-api-postgresql
