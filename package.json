@@ -23,6 +23,7 @@
 "migration:generate": "npm run typeorm -- migration:generate src/database/migrations/InitialSchema -d src/database/data-source.ts",
 "migration:run": "npm run typeorm -- migration:run -d src/database/data-source.ts",
 "migration:revert": "npm run typeorm -- migration:revert -d src/database/data-source.ts",
+"seed": "cross-env NODE_OPTIONS=--experimental-vm-modules ts-node -r dotenv/config src/seed.ts",
 "migration:show": "npm run typeorm -- migration:show -d src/database/data-source.ts"
   },
   "dependencies": {
