@@ -1,25 +1,29 @@
 
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { FilmsController } from './films.controller';
 import { FilmsService } from './films.service';
-import { ShowingRelationsService } from '../showings/showing-relations.service';
 
 describe('FilmsController', () => {
   let controller: FilmsController;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [FilmsController],
-      providers: [
-  FilmsService,
-  {
-    provide: ShowingRelationsService,
-    useValue: {
-      hasFilm: jest.fn().mockReturnValue(false),
-    },
-  },
-],
-    }).compile();
+    const module: TestingModule =
+      await Test.createTestingModule({
+        controllers: [FilmsController],
+        providers: [
+          {
+            provide: FilmsService,
+            useValue: {
+              create: jest.fn(),
+              findAll: jest.fn(),
+              findOne: jest.fn(),
+              update: jest.fn(),
+              remove: jest.fn(),
+            },
+          },
+        ],
+      }).compile();
 
     controller = module.get<FilmsController>(FilmsController);
   });

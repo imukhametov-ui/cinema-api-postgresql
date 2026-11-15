@@ -1,45 +1,59 @@
+
 import {
   Injectable,
   ConflictException,
   NotFoundException,
 } from '@nestjs/common';
-import { randomUUID } from 'node:crypto';
-import { Hall } from './interfaces/hall.interface';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+import { Hall } from './entities/hall.entity';
+import { Showing } from '../showings/entities/showing.entity';
 import { CreateHallDto } from './dto/create-hall.dto';
-import { ShowingRelationsService } from '../showings/showing-relations.service';
 
 @Injectable()
 export class HallsService {
-  private readonly halls: Hall[] = [];
-constructor(
-  private readonly showingRelationsService: ShowingRelationsService,
-) {}
-  create(dto: CreateHallDto): Hall {
-    const exists = this.halls.some(
-      (hall) => hall.name === dto.name,
-    );
+  constructor(
+    @InjectRepository(Hall)
+    private readonly hallsRepository: Repository<Hall>,
+
+    @InjectRepository(Showing)
+    private readonly showingsRepository: Repository<Showing>,
+  ) {}
+
+  async create(dto: CreateHallDto): Promise<Hall> {
+    const exists = await this.hallsRepository.existsBy({
+      name: dto.name,
+    });
 
     if (exists) {
       throw new ConflictException('Hall name already exists');
     }
 
-    const hall: Hall = {
-      id: randomUUID(),
-      name: dto.name,
-      rows: dto.rows,
-      seatsPerRow: dto.seatsPerRow,
-    };
+    const hall = this.hallsRepository.create(dto);
 
-    this.halls.push(hall);
-    return hall;
+    try {
+      return await this.hallsRepository.save(hall);
+    } catch (error) {
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        error.code === '23505'
+      ) {
+        throw new ConflictException('Hall name already exists');
+      }
+
+      throw error;
+    }
   }
 
-  findAll(): Hall[] {
-    return this.halls;
+  async findAll(): Promise<Hall[]> {
+    return this.hallsRepository.find();
   }
 
-  findOne(id: string): Hall {
-    const hall = this.halls.find((item) => item.id === id);
+  async findOne(id: string): Promise<Hall> {
+    const hall = await this.hallsRepository.findOneBy({ id });
 
     if (!hall) {
       throw new NotFoundException('Hall not found');
@@ -47,9 +61,9 @@ constructor(
 
     return hall;
   }
-  
-  findOneWithSeats(id: string) {
-    const hall = this.findOne(id);
+
+  async findOneWithSeats(id: string) {
+    const hall = await this.findOne(id);
 
     const seats: { row: number; seat: number }[] = [];
 
@@ -65,20 +79,19 @@ constructor(
     };
   }
 
-  remove(id: string): void {
-    const index = this.halls.findIndex(
-      (hall) => hall.id === id,
-    );
+  async remove(id: string): Promise<void> {
+    await this.findOne(id);
 
-    if (index === -1) {
-      throw new NotFoundException('Hall not found');
+    const hasShowings = await this.showingsRepository.existsBy({
+      hallId: id,
+    });
+
+    if (hasShowings) {
+      throw new ConflictException(
+        'Cannot delete hall with existing showings',
+      );
     }
-if (this.showingRelationsService.hasHall(id)) {
-  throw new ConflictException(
-    'Cannot delete hall with existing showings',
-  );
-}
-    this.halls.splice(index, 1);
-  }
 
+    await this.hallsRepository.delete(id);
+  }
 }

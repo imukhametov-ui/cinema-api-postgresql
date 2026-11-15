@@ -25,23 +25,25 @@ export class BookingsController {
     private readonly bookingsService: BookingsService,
     private readonly showingsService: ShowingsService,
   ) {}
+  
   @ApiOperation({ summary: 'Get showing seats with booking status' })
-@ApiResponse({ status: 200, description: 'Seats with booking status' })
-@ApiResponse({ status: 404, description: 'Showing not found' })
-@Get('showings/:id/seats')
-getSeats(@Param('id') id: string) {
-  const seats = this.showingsService.getSeats(id);
-  const bookedSeats = this.bookingsService.getBookedSeats(id);
+  @ApiResponse({ status: 200, description: 'Seats with booking status' })
+  @ApiResponse({ status: 404, description: 'Showing not found' })
+  @Get('showings/:id/seats')
+  async getSeats(@Param('id') id: string) {
+    const seats = await this.showingsService.getSeats(id);
+    const bookedSeats = await this.bookingsService.getBookedSeats(id);
 
-  const booked = new Set(
-    bookedSeats.map((seat) => `${seat.row}:${seat.seat}`),
-  );
+    const booked = new Set(
+      bookedSeats.map((seat) => `${seat.row}:${seat.seat}`),
+    );
 
-  return seats.map((seat) => ({
-    ...seat,
-    isBooked: booked.has(`${seat.row}:${seat.seat}`),
-  }));
-}
+    return seats.map((seat) => ({
+      ...seat,
+      isBooked: booked.has(`${seat.row}:${seat.seat}`),
+    }));
+  }
+
   @Post('showings/:id/bookings')
   @ApiOperation({ summary: 'Book seats for a showing' })
   @ApiResponse({ status: 201, description: 'Booking created' })
@@ -75,7 +77,7 @@ getSeats(@Param('id') id: string) {
   @ApiOperation({ summary: 'Cancel a booking' })
   @ApiResponse({ status: 204, description: 'Booking cancelled' })
   @ApiResponse({ status: 404, description: 'Booking not found' })
-  remove(@Param('id') id: string) {
-    this.bookingsService.remove(id);
-  }
+  async remove(@Param('id') id: string): Promise<void> {
+  await this.bookingsService.remove(id);
+}
 }
