@@ -7,7 +7,11 @@ import {
   Param,
   Query,
 } from '@nestjs/common';
-import { ApiQuery } from '@nestjs/swagger';
+import {
+  ApiQuery,
+  ApiBadRequestResponse,
+  ApiNotFoundResponse,
+} from '@nestjs/swagger';
 
 import { ShowingsService } from './showings.service';
 import { CreateShowingDto } from './dto/create-showing.dto';
@@ -55,6 +59,9 @@ export class ShowingsController {
     example: 'asc',
     description: 'Sort by showing start time',
   })
+    @ApiBadRequestResponse({
+    description: 'Invalid query parameters',
+  })
   @Get()
   findAll(
     @Query('filmId') filmId?: string,
@@ -71,7 +78,9 @@ export class ShowingsController {
       sort,
     );
   }
-
+    @ApiNotFoundResponse({
+    description: 'Showing not found',
+  })
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.showingsService.findOne(id);
