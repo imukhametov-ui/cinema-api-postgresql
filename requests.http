@@ -1,10 +1,169 @@
 
-### Create film for showing
-POST http://localhost:3000/films
+@baseUrl = http://localhost:3000
+@missingId = 00000000-0000-4000-8000-000000000000
+
+### 1. Health check
+GET {{baseUrl}}/
+
+### 2. Create film
+# @name createFilm
+POST {{baseUrl}}/films
 Content-Type: application/json
 
 {
-  "title": "Interstellar",
-  "durationMinutes": 169,
-  "releaseYear": 2014
+  "title": "Cinema API Test Film",
+  "durationMinutes": 120,
+  "releaseYear": 2026
 }
+
+###
+
+@filmId = {{createFilm.response.body.$.id}}
+
+### 3. Get all films
+GET {{baseUrl}}/films
+
+### 4. Get film by ID
+GET {{baseUrl}}/films/{{filmId}}
+
+### 5. Update film
+PATCH {{baseUrl}}/films/{{filmId}}
+Content-Type: application/json
+
+{
+  "title": "Cinema API Updated Film"
+}
+
+### 6. Create hall
+# @name createHall
+POST {{baseUrl}}/halls
+Content-Type: application/json
+
+{
+  "name": "Cinema API Test Hall",
+  "rows": 5,
+  "seatsPerRow": 10
+}
+
+###
+
+@hallId = {{createHall.response.body.$.id}}
+
+### 7. Get all halls
+GET {{baseUrl}}/halls
+
+### 8. Get hall by ID
+GET {{baseUrl}}/halls/{{hallId}}
+
+### 9. Create showing
+# @name createShowing
+POST {{baseUrl}}/showings
+Content-Type: application/json
+
+{
+  "filmId": "{{filmId}}",
+  "hallId": "{{hallId}}",
+  "startsAt": "2030-12-25T18:00:00.000Z",
+  "price": 25000
+}
+
+###
+
+@showingId = {{createShowing.response.body.$.id}}
+
+### 10. Get showings with pagination
+GET {{baseUrl}}/showings?page=1&limit=20&sort=asc
+
+### 11. Filter showings by film
+GET {{baseUrl}}/showings?filmId={{filmId}}
+
+### 12. Filter showings by date
+GET {{baseUrl}}/showings?date=2030-12-25
+
+### 13. Get showing by ID
+GET {{baseUrl}}/showings/{{showingId}}
+
+### 14. Get showing seats
+GET {{baseUrl}}/showings/{{showingId}}/seats
+
+### 15. Create booking
+# @name createBooking
+POST {{baseUrl}}/showings/{{showingId}}/bookings
+Content-Type: application/json
+
+{
+  "seats": [
+    { "row": 2, "seat": 5 },
+    { "row": 2, "seat": 6 }
+  ]
+}
+
+###
+
+@bookingId = {{createBooking.response.body.$.id}}
+
+### 16. Get bookings for showing
+GET {{baseUrl}}/showings/{{showingId}}/bookings
+
+### 17. Get all bookings
+GET {{baseUrl}}/bookings
+
+### 18. Error 400: invalid film UUID
+GET {{baseUrl}}/films/not-a-uuid
+
+### 19. Error 400: invalid pagination
+GET {{baseUrl}}/showings?page=0&limit=101
+
+### 20. Error 400: invalid showing price
+POST {{baseUrl}}/showings
+Content-Type: application/json
+
+{
+  "filmId": "{{filmId}}",
+  "hallId": "{{hallId}}",
+  "startsAt": "2030-12-25T18:00:00.000Z",
+  "price": -100
+}
+
+### 21. Error 404: film not found
+GET {{baseUrl}}/films/{{missingId}}
+
+### 22. Error 404: hall not found
+GET {{baseUrl}}/halls/{{missingId}}
+
+### 23. Error 404: showing not found
+GET {{baseUrl}}/showings/{{missingId}}
+
+### 24. Error 409: seat already booked
+POST {{baseUrl}}/showings/{{showingId}}/bookings
+Content-Type: application/json
+
+{
+  "seats": [
+    { "row": 2, "seat": 5 }
+  ]
+}
+
+### 25. Error 409: film has showings
+DELETE {{baseUrl}}/films/{{filmId}}
+
+### 26. Error 409: hall has showings
+DELETE {{baseUrl}}/halls/{{hallId}}
+
+### 27. Cancel booking
+DELETE {{baseUrl}}/bookings/{{bookingId}}
+
+### 28. Error 404: booking not found
+DELETE {{baseUrl}}/bookings/{{missingId}}
+
+### 29. Delete showing-free film
+# Run only after removing its dependent showings.
+# This API does not expose DELETE /showings/:id.
+# DELETE {{baseUrl}}/films/{{filmId}}
+
+### 30. Delete showing-free hall
+# Run only after removing its dependent showings.
+# DELETE {{baseUrl}}/halls/{{hallId}}
+
+### 31. Error 400: invalid booking UUID
+DELETE {{baseUrl}}/bookings/not-a-uuid

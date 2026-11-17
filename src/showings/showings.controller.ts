@@ -6,15 +6,18 @@ import {
   Body,
   Param,
   Query,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import {
   ApiQuery,
   ApiBadRequestResponse,
   ApiNotFoundResponse,
+  ApiOkResponse,
 } from '@nestjs/swagger';
 
 import { ShowingsService } from './showings.service';
 import { CreateShowingDto } from './dto/create-showing.dto';
+import { PaginatedShowingsDto } from './dto/paginated-showings.dto';
 
 @Controller('showings')
 export class ShowingsController {
@@ -62,6 +65,10 @@ export class ShowingsController {
     @ApiBadRequestResponse({
     description: 'Invalid query parameters',
   })
+  @ApiOkResponse({
+  type: PaginatedShowingsDto,
+  description: 'Paginated list of showings',
+})
   @Get()
   findAll(
     @Query('filmId') filmId?: string,
@@ -82,7 +89,7 @@ export class ShowingsController {
     description: 'Showing not found',
   })
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.showingsService.findOne(id);
   }
 }

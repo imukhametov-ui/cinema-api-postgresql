@@ -8,6 +8,7 @@ import {
 } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -34,7 +35,10 @@ app.useGlobalFilters(new HttpExceptionFilter());
 
   SwaggerModule.setup('docs', app, document);
 
-  await app.listen(3000);
+  const configService = app.get(ConfigService);
+const port = configService.get<number>('PORT', 3000);
+
+await app.listen(port);
 }
 
 bootstrap();

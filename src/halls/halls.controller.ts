@@ -8,6 +8,7 @@ import {
   Param,
   HttpCode,
   HttpStatus,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 
 import { HallsService } from './halls.service';
@@ -30,13 +31,15 @@ export class HallsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.hallsService.findOneWithSeats(id);
   }
 
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id') id: string): void {
-    this.hallsService.remove(id);
-  }
+@Delete(':id')
+@HttpCode(HttpStatus.NO_CONTENT)
+async remove(
+  @Param('id', ParseUUIDPipe) id: string,
+): Promise<void> {
+  await this.hallsService.remove(id);
+}
 }

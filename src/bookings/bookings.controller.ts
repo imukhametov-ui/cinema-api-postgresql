@@ -8,6 +8,7 @@ import {
   Param,
   HttpCode,
   HttpStatus,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -30,7 +31,7 @@ export class BookingsController {
   @ApiResponse({ status: 200, description: 'Seats with booking status' })
   @ApiResponse({ status: 404, description: 'Showing not found' })
   @Get('showings/:id/seats')
-  async getSeats(@Param('id') id: string) {
+  async getSeats(@Param('id', ParseUUIDPipe) id: string) {
     const seats = await this.showingsService.getSeats(id);
     const bookedSeats = await this.bookingsService.getBookedSeats(id);
 
@@ -51,9 +52,9 @@ export class BookingsController {
   @ApiResponse({ status: 404, description: 'Showing not found' })
   @ApiResponse({ status: 409, description: 'Seat already booked' })
   create(
-    @Param('id') showingId: string,
-    @Body() dto: CreateBookingDto,
-  ) {
+  @Param('id', ParseUUIDPipe) showingId: string,
+  @Body() dto: CreateBookingDto,
+) {
     return this.bookingsService.create(showingId, dto);
   }
 
@@ -61,7 +62,7 @@ export class BookingsController {
   @ApiOperation({ summary: 'Get bookings for a showing' })
   @ApiResponse({ status: 200, description: 'Showing bookings' })
   @ApiResponse({ status: 404, description: 'Showing not found' })
-  findByShowing(@Param('id') showingId: string) {
+ findByShowing(@Param('id', ParseUUIDPipe) showingId: string) {
     return this.bookingsService.findByShowing(showingId);
   }
 
@@ -77,7 +78,7 @@ export class BookingsController {
   @ApiOperation({ summary: 'Cancel a booking' })
   @ApiResponse({ status: 204, description: 'Booking cancelled' })
   @ApiResponse({ status: 404, description: 'Booking not found' })
-  async remove(@Param('id') id: string): Promise<void> {
+  async remove(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
   await this.bookingsService.remove(id);
 }
 }
